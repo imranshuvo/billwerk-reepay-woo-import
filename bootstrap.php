@@ -3,7 +3,7 @@
 require __DIR__.'/vendor/autoload.php';
 
 //Helper functions 
-require __DIR__.'/helpers.php';
+require __DIR__.'/functions.php';
 
 //include the bootstrap
 require __DIR__.'/config.php';

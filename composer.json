@@ -1,5 +1,10 @@
 {
     "require": {
-        "guzzlehttp/guzzle": "^7.8"
+        "guzzlehttp/guzzle": "^7.8",
+        "league/csv": "^9.0"
+    },
+    "config": {
+
+        "platform-check": false
     }
 }

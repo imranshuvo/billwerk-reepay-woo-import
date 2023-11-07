@@ -162,19 +162,24 @@ function wk_bwi_add_payment_method($payment_data){
         //First make sure to get the payment id 
         $payment_method = json_decode($response['content']);
         $payment_id = $payment_method->id;
+        $customer_handle = $payment_method->customer;
 
-        // echo '<pre>';
-        // print_r($payment_id);
-        // echo '</pre>';
-
-        // echo '<pre>';
-        // print_r($payment_method);
-        // echo '</pre>';
+        return array(
+            'status_code' => 200,
+            'token' => $payment_id,
+            'customer_id' => $customer_handle,
+            'payment_method' => $response['content'] //full response
+        );
 
     }else{
         //error happened; do something
         // error_log 
         wk_bwi_error_log($response, $payment_data);
+
+        return array(
+            'status_code' => $response['status_code'],
+            'response' => $response
+        );
     }
     
 }

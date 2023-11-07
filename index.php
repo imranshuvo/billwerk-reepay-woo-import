@@ -28,6 +28,7 @@ function wk_billwerk_add_setting_page(){
 }
 
 function wk_billwerk_woo_import_settings_page_callback(){
+
     $customer_to_create = [
         'email' => 'test23@test.com',
         'address' => "Some test address",

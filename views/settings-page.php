@@ -1,3 +1,8 @@
+<?php  
+    use League\Csv\Reader;
+    use League\Csv\Statement;
+?>
+
 <script src="https://cdn.tailwindcss.com"></script>
 
 <div class="wrap" id="">
@@ -21,96 +26,18 @@
         </label>
         <a id="option_submit" href="#" class="btn bg-orange-500 text-white p-3 mt-4 inline-block">Submit</a>
     </div>
-    <?php var_dump(wk_bwi_get_csv_file_url()['path']); ?>
+    <?php //var_dump(wk_bwi_get_csv_file_url()['path']); ?>
     <?php $file_url = file_exists(wk_bwi_get_csv_file_url()['path']) ?? ''; ?>
     <?php if($file_url != ''): ?>
     <div class="mt-10 bg-white p-4">
         <div class="text-green-import text-green-900 font-bold m-2"></div>
         <div class="text-red-import text-red-900 font-bold m-2"></div>
 
-        <div id="wk_bwi_start_import" class="bg-green-900 text-white font-bold inline-block cursor-pointer p-6">Start Customer and Payment Import</div>
 
+        <div id="wk_bwi_start_import_pre_run" class="bg-green-900 text-white font-bold inline-block cursor-pointer p-6 mr-5" style="display: none;">Test Run</div>
 
-        <?php  
-
-        $file_url = wk_bwi_get_csv_file_url()['path'];
-
-        $handle = fopen($file_url, 'r');
-
-        $not_found = 0;
-
-        $row = 1;
-
-        if($handle !== FALSE) {
-            while(($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
-                $num = count($data);
-                for ($c=0; $c < $num; $c++) {
-                    //print_r($data[$c]);
-                    if(gettype($data[$c]) == 'string'){
-                        $old_data = explode(";", $data[$c]);
-                        echo '<pre>';
-                        print_r($old_data);
-                        echo '</pre>';
-
-                        $pensopay_transaction_id = $old_data[0];
-                        $sub_id_ref = explode("-", $old_data[1])[0];
-                        $reepay_payment_token = $old_data[2];
-
-                        $sub_order = get_post($sub_id_ref);
-
-                        $data_to_push = array();
-
-                        $data_to_push['pensopay_transaction_id'] = $pensopay_transaction_id;
-                        $data_to_push['sub_id_ref'] = $sub_id_ref;
-                        $data_to_push['reepay_payment_token'] = $reepay_payment_token;
-
-
-                        if(is_object($sub_order)){
-
-                            $customer = [
-                                'email' => get_post_meta($sub_id_ref, '_billing_email', true ),
-                                'address' => get_post_meta($sub_id_ref, '_billing_address_1', true ),
-                                'address2' => get_post_meta($sub_id_ref, '_billing_address_2', true ),
-                                'city' => get_post_meta($sub_id_ref, '_billing_city', true ),
-                                'country' => get_post_meta($sub_id_ref, '_billing_country', true ),
-                                'phone' => get_post_meta($sub_id_ref, '_billing_phone', true ),
-                                'company' => get_post_meta($sub_id_ref, '_billing_company', true ),
-                                'vat' => 'vatnumber',
-                                'first_name' => get_post_meta($sub_id_ref, '_billing_first_name', true ),
-                                'last_name' => get_post_meta($sub_id_ref, '_billing_last_name', true ),
-                                'postal_code' => get_post_meta($sub_id_ref, '_billing_postcode', true ),
-                            ];
-
-                            $data_to_push['source'] = $reepay_payment_token;
-
-
-                            //check if the customer is already on billwerk
-                            if(get_post_meta($sub_id_ref,'_reepay_customer_id', true ) != ''){
-                               $data_to_push['customer_handle'] = get_post_meta($sub_id_ref,'_reepay_customer_id', true );
-                            }else{
-                                $data_to_push['customer'] = $customer;
-                                $data_to_push['customer']['generate_handle'] = true;
-                            }
-
-
-                            echo '<pre>';
-                            print_r($data_to_push);
-                            echo '</pre>';
-                        }else {
-                            $not_found++;
-                        }
-                        
-                    }
-                }
-
-                //$row control 
-                $row++;
-            }
-            fclose($handle);
-        }
-
-        echo $not_found;
-        ?>
+        <div id="wk_bwi_start_import" class="bg-green-900 text-white font-bold inline-block cursor-pointer p-6" style="display: none;">Start Customer and Payment Import</div>
+        
     </div>
     <?php endif; ?>
 </div>
@@ -120,21 +47,62 @@
 
     jQuery(document).ready(function($){
 
-        //Import ajax
-        $('#wk_bwi_start_import').on('click', function(e){
+        //Import ajax pre run 
+        $('#wk_bwi_start_import_pre_run').on('click', function(){
             $.ajax({
                 type: 'post',
                 url: "<?php echo admin_url('admin-ajax.php'); ?>",
                 data: {
-                    action: 'wk_bwi_process_import',
+                    action: 'wk_bwi_process_import_pre_run',
                 },
                 beforeSend: function(){
-                    console.log('beforeSend');
+                    console.log('beforeSend pre run ');
                 },
                 success: function(response){
                     console.log(response);
                 }
             })
+        });
+
+        //Import ajax
+        $('#wk_bwi_start_import').on('click', function(e){
+            let totalQueries = 702; //This is where you changed the query number for now
+            let batchSize = 10; //Adjust batch size as needed
+
+            //Calculate the number of batches 
+            let numBatches = Math.ceil(totalQueries/batchSize);
+
+            // Process each batch sequantially
+            let currentBatch = 1;
+
+            function processBatch(){
+                if(currentBatch <= numBatches){
+                    let offset = (currentBatch - 1 ) * batchSize;
+
+                    $.ajax({
+                        type: 'post',
+                        url: "<?php echo admin_url('admin-ajax.php'); ?>",
+                        data: {
+                            action: 'wk_bwi_process_import',
+                            offset: offset
+                        },
+                        beforeSend: function(){
+                            console.log('beforeSend currentBatch ', + currentBatch + ' and offset ' + offset );
+                        },
+                        success: function(response){
+                            console.log(response);
+
+                            currentBatch++;
+                            processBatch();
+
+                        }
+                    })
+                }
+            }
+
+            //Start processing the first batch
+            processBatch();
+            
         });
 
 
