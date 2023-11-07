@@ -29,21 +29,21 @@ function wk_billwerk_add_setting_page(){
 
 function wk_billwerk_woo_import_settings_page_callback(){
 
-    $customer_to_create = [
-        'email' => 'test23@test.com',
-        'address' => "Some test address",
-        'address2' => "address 2",
-        'city' => 'LA',
-        'country' => "US",
-        'phone' => '555-555-555',
-        'company' => 'Test company',
-        'vat' => 'vatnumber',
-        'test' => true,
-        'first_name' => 'Imran',
-        'last_name' => 'Khan',
-        'postal_code' => '1216',
-        'generate_handle' => true,
-    ];
+    // $customer_to_create = [
+    //     'email' => 'test23@test.com',
+    //     'address' => "Some test address",
+    //     'address2' => "address 2",
+    //     'city' => 'LA',
+    //     'country' => "US",
+    //     'phone' => '555-555-555',
+    //     'company' => 'Test company',
+    //     'vat' => 'vatnumber',
+    //     'test' => true,
+    //     'first_name' => 'Imran',
+    //     'last_name' => 'Khan',
+    //     'postal_code' => '1216',
+    //     'generate_handle' => true,
+    // ];
 
     //wk_bwi_get_all_customer();
     //wk_bwi_get_customer('cust-0009');

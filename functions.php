@@ -169,7 +169,7 @@ function wk_bwi_process_import(){
 add_action('wp_ajax_wk_bwi_process_import_pre_run','wk_bwi_process_import_pre_run');
 
 function wk_bwi_process_import_pre_run(){
-    $limit = 2;
+    $limit = 1000;
     $offset = 0;
 
     $not_pushed_data = array();
