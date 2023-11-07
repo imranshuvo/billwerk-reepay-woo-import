@@ -1,7 +1,7 @@
 <?php 
 /*
 * Plugin Name: Billwerk Woo Import
-* Description: This plugin helps importing Woocommerce quickpay payment service data to Billwerk/reepay system
+* Description: This plugin helps importing Woocommerce quickpay payment service data to Billwerk/reepay system. 1) Upload the file to /uploads; 2) Install the plugin; 3) add api key and file name; 4) Try a dry run ; 5) Run import
 * Version: 1.0
 * Requires PHP: 7.2
 * Author: webkonsulenterne, Imran khan

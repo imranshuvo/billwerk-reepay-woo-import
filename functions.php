@@ -230,20 +230,20 @@ function wk_bwi_process_import_pre_run(){
             $pushed_data[] = $data_to_push;
 
             //so, now we have the data ready for the payment
-            $api_response = wk_bwi_add_payment_method($data_to_push);
-            $response_from_api[] = $api_response;
+            // $api_response = wk_bwi_add_payment_method($data_to_push);
+            // $response_from_api[] = $api_response;
 
-            if($api_response['status_code'] == 200){
-                update_post_meta($sub_id_ref,'_payment_method','reepay_checkout');
-                update_post_meta($sub_id_ref, '_reepay_token', $api_response['token']);
-                update_post_meta($sub_id_ref, 'reepay_token', $api_response['token']);
-                update_post_meta($sub_id_ref,'_reepay_customer_id', $api_response['customer_id']);
-                update_post_meta($sub_id_ref,'_reepay_customer', $api_response['customer_id']);
+            // if($api_response['status_code'] == 200){
+            //     update_post_meta($sub_id_ref,'_payment_method','reepay_checkout');
+            //     update_post_meta($sub_id_ref, '_reepay_token', $api_response['token']);
+            //     update_post_meta($sub_id_ref, 'reepay_token', $api_response['token']);
+            //     update_post_meta($sub_id_ref,'_reepay_customer_id', $api_response['customer_id']);
+            //     update_post_meta($sub_id_ref,'_reepay_customer', $api_response['customer_id']);
 
-                wk_bwi_success_log($api_response,$data_to_push );
-            }else {
-                wk_bwi_error_log($api_response, $data_to_push);
-            }
+            //     wk_bwi_success_log($api_response,$data_to_push );
+            // }else {
+            //     wk_bwi_error_log($api_response, $data_to_push);
+            // }
 
         }else {
             $not_pushed_data[] = $data_to_push;
