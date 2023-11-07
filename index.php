@@ -64,6 +64,12 @@ function wk_billwerk_woo_import_settings_page_callback(){
     //     'signup_method' => 'link',
     //     'generate_handle' => true
     // ));
+    
+    /*
+    $payment_method_meta = array(
+
+    );
+    */
 
     require __DIR__.'/views/settings-page.php';
 

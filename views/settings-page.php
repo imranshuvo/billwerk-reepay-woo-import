@@ -26,7 +26,7 @@
         </label>
         <a id="option_submit" href="#" class="btn bg-orange-500 text-white p-3 mt-4 inline-block">Submit</a>
     </div>
-    <?php //var_dump(wk_bwi_get_csv_file_url()['path']); ?>
+
     <?php $file_url = file_exists(wk_bwi_get_csv_file_url()['path']) ?? ''; ?>
     <?php if($file_url != ''): ?>
     <div class="mt-10 bg-white p-4">

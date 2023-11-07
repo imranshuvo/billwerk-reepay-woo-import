@@ -40,6 +40,23 @@ function wk_bwi_success_log($object, $data){
 }
 
 
+function wk_bwi_update_payment_method_meta($post_id, $meta_value){
+
+    $payment_method_meta_current = get_post_meta($post_id, '_payment_method_meta', true );
+
+    if($payment_method_meta_current == '' || $payment_method_meta_current == null ){
+        $payment_method_meta_current = array();
+        $unserialized_data = $payment_method_meta_current;
+    }else {
+        $unserialized_data = maybe_unserialize($payment_method_meta_current);
+    }
+    $unserialized_data['reepay_checkout']['post_meta']['_reepay_token'] = $meta_value;
+
+    update_post_meta($post_id,'_payment_method_meta', $unserialized_data);
+    
+}
+
+
 //save options
 add_action('wp_ajax_wk_bwi_save_options','wk_bwi_save_options');
 
@@ -138,6 +155,8 @@ function wk_bwi_process_import(){
                 update_post_meta($sub_id_ref, 'reepay_token', $api_response['token']);
                 update_post_meta($sub_id_ref,'_reepay_customer_id', $api_response['customer_id']);
                 update_post_meta($sub_id_ref,'_reepay_customer', $api_response['customer_id']);
+
+                wk_bwi_update_payment_method_meta($sub_id_ref, $api_response['token']);
 
                 wk_bwi_success_log($api_response,$data_to_push );
             }else {
