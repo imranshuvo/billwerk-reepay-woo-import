@@ -141,13 +141,24 @@ function wk_bwi_get_payment($payment_id){
         //successfull
         $payment_method = json_decode($response['content']);
 
-        echo '<pre>';
-        print_r($payment_method);
-        echo '</pre>';
+        // echo '<pre>';
+        // print_r($payment_method);
+        // echo '</pre>';
+
+        return array(
+            'status_code' => 200,
+            'payment_method' => $payment_method //full response
+        );
+
     }else{
         //error happened; do something
         // error_log 
         wk_bwi_error_log($response, $payment_id);
+
+        return array(
+            'status_code' => $response['status_code'],
+            'response' => $response
+        );
     }
 }
 

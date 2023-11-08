@@ -37,6 +37,9 @@
         <div id="wk_bwi_start_import_pre_run" class="bg-green-900 text-white font-bold inline-block cursor-pointer p-6 mr-5" style="display: none;">Test Run</div>
 
         <div id="wk_bwi_start_import" class="bg-green-900 text-white font-bold inline-block cursor-pointer p-6" style="display: none;">Start Customer and Payment Import</div>
+
+
+        <div id="wk_bwi_start_update_payment" class="bg-green-900 text-white font-bold inline-block cursor-pointer p-6">Update payment method</div>
         
     </div>
     <?php endif; ?>
@@ -62,6 +65,48 @@
                     console.log(response);
                 }
             })
+        });
+
+        //Update payments 
+        $('#wk_bwi_start_update_payment').on('click', function(){
+
+            let totalQueries = 546; //This is where you changed the query number for now
+            let batchSize = 10; //Adjust batch size as needed
+
+            //Calculate the number of batches 
+            let numBatches = Math.ceil(totalQueries/batchSize);
+
+            // Process each batch sequantially
+            let currentBatch = 1;
+
+            function processBatch(){
+                if(currentBatch <= numBatches){
+                    let offset = (currentBatch - 1 ) * batchSize;
+
+                    $.ajax({
+                        type: 'post',
+                        url: "<?php echo admin_url('admin-ajax.php'); ?>",
+                        data: {
+                            action: 'wk_bwi_save_payment_tokens',
+                            offset: offset
+                        },
+                        beforeSend: function(){
+                            console.log('beforeSend currentBatch ', + currentBatch + ' and offset ' + offset );
+                        },
+                        success: function(response){
+                            console.log(response);
+
+                            currentBatch++;
+                            processBatch();
+
+                        }
+                    })
+                }
+            }
+
+            //Start processing the first batch
+            processBatch();
+
         });
 
         //Import ajax

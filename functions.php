@@ -57,6 +57,127 @@ function wk_bwi_update_payment_method_meta($post_id, $meta_value){
 }
 
 
+function wk_bwi_update_payment_tokens($token_data){
+    global $wpdb;
+
+    //$token = new WC_Payment_Token_CC();
+
+    $token = new \Reepay\Checkout\Tokens\TokenReepay();
+
+    $token->set_gateway_id( $token_data['gateway_id'] );
+    $token->set_token( $token_data['token'] );
+    $token->set_last4( $token_data['last4'] );
+    $token->set_expiry_year( $token_data['expiry_year']);
+    $token->set_expiry_month( $token_data['expiry_month'] );
+    $token->set_card_type( $token_data['card_type'] );
+    $token->set_user_id( $token_data['user_id'] );
+    $token->set_masked_card( $token_data['masked_card'] );
+    $token->save();
+
+    if(!$token->get_id()){
+        $response = array(
+            'status' => 401,
+            'message' => 'Token could not be created',
+            'token' => $token_data['token']
+        );
+    }else{
+        
+        $response = array(
+            'status' => 200,
+            'message' => 'Token created successfully!',
+            'token' => $token->get_id()
+        );
+    }
+    
+    return $response;
+}
+
+
+add_action('wp_ajax_wk_bwi_save_payment_tokens','wk_bwi_save_payment_tokens');
+
+
+function wk_bwi_save_payment_tokens(){
+    $limit = 10;
+    $offset = isset($_POST['offset']) && $_POST['offset'] != '' ? intval($_POST['offset']) : 0;
+
+
+    $args = array(
+     'post_type' => 'shop_subscription',
+     'posts_per_page' => $limit,
+     'offset' => $offset,
+     'post_status' => 'any',
+     'include' => array(512970),
+     /*'meta_query' => array(
+         array(
+             'key' => '_payment_method',
+             'value' => 'reepay_checkout'
+         )
+     ),*/
+
+    );
+
+    $posts = get_posts($args);
+
+
+    $response_back = array();
+
+    if(is_array($posts) && count($posts) > 0){
+        foreach($posts as $post){
+            $token = array();
+
+            $sub_id = $post->ID;
+            $sub_customer_id = get_post_meta($sub_id, '_customer_user', true );
+
+            $payment_id =  'ca_e037b5fbb034a5c036c79a1f23ab76ff';//get_post_meta($sub_id, 'reepay_token', true );
+
+            if($payment_id != ''){
+                $response = wk_bwi_get_payment($payment_id); //should be the object
+
+                if($response['status_code'] == 200 ){
+
+                    $card = $response['payment_method']->card;
+
+                    $expiry_month = explode("-", $card->exp_date)[0];
+                    $expiry_year = '20'.explode("-", $card->exp_date)[1];
+                    $last4 = substr( $card->masked_card, -4);
+                    $card_type = $card->transaction_card_type;
+                    $user_id = $sub_customer_id;
+                    $masked_card = $card->masked_card;
+
+
+                    $token['gateway_id'] = 'reepay_checkout';
+                    $token['token'] = $payment_id;
+                    $token['last4'] = $last4;
+                    $token['expiry_year'] = $expiry_year;
+                    $token['expiry_month'] = $expiry_month;
+                    $token['card_type'] = $card_type;
+                    $token['user_id'] = $user_id;
+                    $token['masked_card'] = $masked_card;
+
+
+                    $token_saved = wk_bwi_update_payment_tokens($token);
+
+                    $response_back['token_saved'] = $token_saved;
+
+                    $response_back['tokendata'] = $token;
+
+                    $response_back[] = $response['payment_method'];
+
+                }
+            }
+
+
+        }
+    }
+
+    wp_send_json($response_back);
+
+    wp_die();
+
+}
+
+
+
 //save options
 add_action('wp_ajax_wk_bwi_save_options','wk_bwi_save_options');
 
